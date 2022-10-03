@@ -1,0 +1,8 @@
+name: cross-chain-amm
+foundry:
+  fork:
+    ethereum:
+      mainnet:
+        upstream_provider: infura
+      goerli:
+        upstream_provider: infura

@@ -1,4 +1,4 @@
-#@version 0.3.6
+#@version 0.3.7
 
 FACTORY: immutable(address)
 POOL_ID: immutable(uint256)
@@ -6,7 +6,7 @@ TOKEN: constant(address) = empty(address)
 
 interface Factory:
     def swap_in(pool_id: uint256, amount: uint256, recipient: String[64]): nonpayable
-    def add_liquidity(pool_id: uint256, amount: uint256, depositor: address): nonpayable
+    def add_liquidity(pool_id: uint256, amount: uint256, depositor: address, recipient: String[64]): nonpayable
 
 @external
 def __init__(pool_id: uint256):
@@ -31,12 +31,12 @@ def pool_id() -> uint256:
 @external
 @payable
 @nonreentrant("L")
-def add_liquidity(amount: uint256):
+def add_liquidity(amount: uint256, recipient: String[64]):
     if msg.value == amount:
-        Factory(FACTORY).add_liquidity(POOL_ID, amount, msg.sender)
+        Factory(FACTORY).add_liquidity(POOL_ID, amount, msg.sender, recipient)
     elif msg.value > amount:
         send(msg.sender, msg.value - amount)
-        Factory(FACTORY).add_liquidity(POOL_ID, amount, msg.sender)
+        Factory(FACTORY).add_liquidity(POOL_ID, amount, msg.sender, recipient)
     else:
         raise "Insufficient funds"
 

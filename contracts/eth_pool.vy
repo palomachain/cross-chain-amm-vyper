@@ -5,8 +5,8 @@ POOL_ID: immutable(uint256)
 TOKEN: constant(address) = empty(address)
 
 interface Factory:
-    def swap_in(pool_id: uint256, amount: uint256, recipient: String[64]): nonpayable
-    def add_liquidity(pool_id: uint256, amount: uint256, depositor: address, recipient: String[64]): nonpayable
+    def swap_in(pool_id: uint256, token: address, amount: uint256, recipient: String[64]): nonpayable
+    def add_liquidity(pool_id: uint256, token: address, amount: uint256, depositor: address, recipient: String[64]): nonpayable
 
 @external
 def __init__(pool_id: uint256):
@@ -32,11 +32,12 @@ def pool_id() -> uint256:
 @payable
 @nonreentrant("L")
 def add_liquidity(amount: uint256, recipient: String[64]):
+    assert amount > 0
     if msg.value == amount:
-        Factory(FACTORY).add_liquidity(POOL_ID, amount, msg.sender, recipient)
+        Factory(FACTORY).add_liquidity(POOL_ID, TOKEN, amount, msg.sender, recipient)
     elif msg.value > amount:
         send(msg.sender, msg.value - amount)
-        Factory(FACTORY).add_liquidity(POOL_ID, amount, msg.sender, recipient)
+        Factory(FACTORY).add_liquidity(POOL_ID, TOKEN, amount, msg.sender, recipient)
     else:
         raise "Insufficient funds"
 
@@ -44,11 +45,12 @@ def add_liquidity(amount: uint256, recipient: String[64]):
 @payable
 @nonreentrant("L")
 def swap_in(amount: uint256, recipient: String[64]):
+    assert amount > 0
     if msg.value == amount:
-        Factory(FACTORY).swap_in(POOL_ID, amount, recipient)
+        Factory(FACTORY).swap_in(POOL_ID, TOKEN, amount, recipient)
     elif msg.value > amount:
         send(msg.sender, msg.value - amount)
-        Factory(FACTORY).swap_in(POOL_ID, amount, recipient)
+        Factory(FACTORY).swap_in(POOL_ID, TOKEN, amount, recipient)
     else:
         raise "Insufficient funds"
 

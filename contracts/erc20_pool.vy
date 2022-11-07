@@ -5,8 +5,8 @@ TOKEN: immutable(address)
 POOL_ID: immutable(uint256)
 
 interface Factory:
-    def swap_in(pool_id: uint256, amount: uint256, recipient: String[64]): nonpayable
-    def add_liquidity(pool_id: uint256, amount: uint256, depositor: address, recipient: String[64]): nonpayable
+    def swap_in(pool_id: uint256, token: address, amount: uint256, recipient: String[64]): nonpayable
+    def add_liquidity(pool_id: uint256, token: address, amount: uint256, depositor: address, recipient: String[64]): nonpayable
 
 @internal
 def _safe_transfer(_token: address, _to: address, _value: uint256):
@@ -60,13 +60,15 @@ def pool_id() -> uint256:
 
 @external
 def add_liquidity(amount: uint256, recipient: String[64]):
+    assert amount > 0
     self._safe_transfer_from(TOKEN, msg.sender, self, amount)
-    Factory(FACTORY).add_liquidity(POOL_ID, amount, msg.sender, recipient)
+    Factory(FACTORY).add_liquidity(POOL_ID, TOKEN, amount, msg.sender, recipient)
 
 @external
 def swap_in(amount: uint256, chain_id: uint256, recipient: String[64]):
+    assert amount > 0
     self._safe_transfer_from(TOKEN, msg.sender, self, amount)
-    Factory(FACTORY).swap_in(POOL_ID, amount, recipient)
+    Factory(FACTORY).swap_in(POOL_ID, TOKEN, amount, recipient)
 
 @external
 def swap_out(amount: uint256, recipient: address):

@@ -1,4 +1,4 @@
-#@version 0.3.7
+# @version 0.3.7
 
 FACTORY: immutable(address)
 TOKEN: immutable(address)
@@ -65,7 +65,7 @@ def add_liquidity(amount: uint256, recipient: String[64]):
     Factory(FACTORY).add_liquidity(POOL_ID, TOKEN, amount, msg.sender, recipient)
 
 @external
-def swap_in(amount: uint256, chain_id: uint256, recipient: String[64]):
+def swap_in(amount: uint256, recipient: String[64]):
     assert amount > 0
     self._safe_transfer_from(TOKEN, msg.sender, self, amount)
     Factory(FACTORY).swap_in(POOL_ID, TOKEN, amount, recipient)

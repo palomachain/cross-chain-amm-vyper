@@ -6,10 +6,15 @@ GOVERNANCE: immutable(address)
 
 event AddLiquidity:
     pool_id: indexed(uint256)
-    token: address
+    token: indexed(address)
     amount: uint256
     depositor: indexed(address)
     recipient: String[64]
+
+event CreatePool:
+    pool_id: indexed(uint256)
+    token: indexed(address)
+    pool_address: indexed(address)
 
 event SwapIn:
     pool_id: uint256
@@ -48,13 +53,15 @@ def __init__(compass_evm: address, eth_pool_blueprint: address, erc20_pool_bluep
 
 @external
 def create_pool(token: address, pool_id: uint256):
+    assert msg.sender == self.admin
     assert self.pool_addresses[pool_id][token] == empty(address), "Existing pool"
     pool: address = empty(address)
     if token == empty(address):
-        pool = create_from_blueprint(ETH_POOL_BLUEPRINT, pool_id)
+        pool = create_from_blueprint(ETH_POOL_BLUEPRINT, pool_id, code_offset=3)
     else:
-        pool = create_from_blueprint(ERC20_POOL_BLUEPRINT, token, pool_id)
+        pool = create_from_blueprint(ERC20_POOL_BLUEPRINT, token, pool_id, code_offset=3)
     self.pool_addresses[pool_id][token] = pool
+    log CreatePool(pool_id, token, pool)
 
 @external
 def add_liquidity(pool_id: uint256, token: address, amount: uint256, depositor: address, recipient: String[64]):
